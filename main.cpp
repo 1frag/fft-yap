@@ -17,7 +17,7 @@ using namespace chrono;
 
 void profiler(void (*func)(double *, double *, int),
               double *in, double *out, int len,
-              char *alias, int times = 10) {
+              char *alias, int times = 1) {
 
     auto start(high_resolution_clock::now());
 
@@ -58,10 +58,10 @@ int main() {
     }
 
     profiler(my_algos::Seq, input, output, len, (char *) "Seq");
-//    presenter(len, output);
+    presenter(len, output);
 
     profiler(my_algos::Vec, input, output, len, (char *) "Vec");
-//    presenter(len, output);
+    presenter(len, output);
 
     return 0;
 }

@@ -18,3 +18,4 @@ else
 fi
 
 sudo chmod a+rwx ./*
+rm -rf program
