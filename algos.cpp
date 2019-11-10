@@ -45,7 +45,8 @@ void my_algos::Seq(double *AVal, double *FTvl, int len) {
     }
     Mmax = 2;
 
-    while (n > Mmax) {
+    while (Mmax < n) {
+
         Theta = -TwoPi / Mmax;
         Wpi = std::sin(Theta);
         Wtmp = sin(Theta / 2);
@@ -88,7 +89,6 @@ void my_algos::Vec(double *AVal, double *FTvl, int len) {
 
     n = len * 2;
 
-#pragma omp parallel for
     for (i = 0; i < n; i += 2) {
         FTvl[i] = 0;
         FTvl[i + 1] = AVal[i / 2];
@@ -117,8 +117,20 @@ void my_algos::Vec(double *AVal, double *FTvl, int len) {
         j += m;
     }
 
-//#pragma omp parallel for
-    for (int Mmax = 2; n > Mmax; Mmax *= 2) {
+    int to_mmax[25], Z;
+    for (i = 0; i < 25; i++) {
+        to_mmax[i] = (1 << i);
+        if (to_mmax[i] >= n) {
+            Z = i;
+            break;
+        }
+    }
+
+#pragma omp parallel for
+    for (int y = 1; y < Z; y++) {
+
+        int Mmax = to_mmax[y];
+
         Theta = -TwoPi / Mmax;
         Wpi = sin(Theta);
         Wtmp = sin(Theta / 2);
@@ -127,14 +139,13 @@ void my_algos::Vec(double *AVal, double *FTvl, int len) {
         Wr = 1;
         Wi = 0;
 
-#pragma omp parallel for
-        for (m = 3; m < Mmax + 2; m += 2) {
+        for (m = 1; m < Mmax; m += 2) {
+
             Tmpr = Wr;
             Tmpi = Wi;
-            Wr = Wr - Tmpr * Wpr - Tmpi * Wpi;
-            Wi = Wi + Tmpr * Wpi - Tmpi * Wpr;
+            Wi += Tmpr * Wpi - Tmpi * Wpr;
+            Wr -= Tmpr * Wpr + Tmpi * Wpi;
 
-#pragma omp parallel for
             for (i = m; i < n; i += Istp) {
                 j = i + Mmax;
                 Tmpr = Wr * FTvl[j] - Wi * FTvl[j - 1];
@@ -145,6 +156,7 @@ void my_algos::Vec(double *AVal, double *FTvl, int len) {
                 FTvl[i] = FTvl[i] + Tmpr;
                 FTvl[i - 1] = FTvl[i - 1] + Tmpi;
             }
+
         }
     }
 }

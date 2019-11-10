@@ -16,3 +16,5 @@ then
 else
   echo "compilation problems"
 fi
+
+sudo chmod a+rwx ./*

@@ -17,7 +17,7 @@ using namespace chrono;
 
 void profiler(void (*func)(double *, double *, int),
               double *in, double *out, int len,
-              char *alias, int times = 100000) {
+              char *alias, int times = 10) {
 
     auto start(high_resolution_clock::now());
 
@@ -33,13 +33,14 @@ void profiler(void (*func)(double *, double *, int),
 void presenter(int len, double *output) {
     int i, j;
     for (i = j = 0; i < len; i++, j += 2) {
-        if (i && i % 5 == 0) cout << endl;
-        printf("%.2f %c %.4fi, ",
+        printf("%.2f %c %.4fi%s",
                output[j + 1],
                output[j] >= 0 ? '+' : '-',
-               abs(output[j])
+               abs(output[j]),
+               i + 1 == len ? "." : ", "
         );
     }
+    printf("\n\n\n");
 }
 
 int main() {
